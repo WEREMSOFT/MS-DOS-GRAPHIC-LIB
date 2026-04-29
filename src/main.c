@@ -39,7 +39,7 @@ typedef struct
 void urPutPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
 {
 	int position = (x + y * UR_SCREEN_WIDTH) % (320 * 240 * sizeof(URColor));
-	((URColor *)appState.textureData)[position] = (URColor){r, g, b, 0xff};
+	((URColor *)appState.textureData)[position] = (URColor){r, g, b};
 }
 
 /* This function runs once at startup. */
@@ -107,7 +107,28 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 	urClearScreen(UR_BLACK);
 
-	urDrawSquareFill((URPointI){100, 100}, (URPointI){100, 10}, UR_RED);
+	URColor colors[] =
+	{
+		UR_RED,
+		UR_PURPLE,
+		UR_YELLOW,
+		UR_BLUE,
+		UR_GREEN
+	};
+
+	static int start = 0;
+
+	static float increment = 0;
+
+	increment += 10. * deltaTime;
+
+	start = (int)increment;
+
+	for(int i = 0; i < 100; i++)
+	{
+		URColor color = colors[(start + i) % 5];
+		urDrawSquare((URPointI){.x = 100 - i / 2, .y = 100 - i / 2}, (URPointI){.x = i, .y = i}, color);
+	}
 
 	urPrintString((URPointI){.x = 100, .y = 100}, "sarasa", UR_YELLOW);
 
