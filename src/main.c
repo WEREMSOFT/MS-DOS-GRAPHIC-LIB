@@ -42,6 +42,8 @@ void urPutPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
 	((URColor *)appState.textureData)[position] = (URColor){r, g, b};
 }
 
+URSprite sprite;
+
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -58,6 +60,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	}
 	SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 	SDL_SetRenderVSync(renderer, 1);
+
+	sprite = urSpriteCreate("assets/sphere.bmp");
 
 	appState.textureData = malloc(320 * 240 * sizeof(Color));
 
@@ -100,11 +104,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 	double deltaTime = now - appState->lastTime;
 	appState->lastTime = now;
 
-	SDL_SetRenderDrawColorFloat(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE_FLOAT);
 
 	/* clear the window to the draw color. */
-	SDL_RenderClear(renderer);
-
 	urClearScreen(UR_BLACK);
 
 	URColor colors[] =
@@ -131,6 +132,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 	}
 
 	urPrintString((URPointI){.x = 100, .y = 100}, "sarasa", UR_YELLOW);
+
+	urSpriteDrawTransparent(sprite);
 
 	urPrintFPS(deltaTime);
 
