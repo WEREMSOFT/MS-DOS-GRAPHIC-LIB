@@ -14,6 +14,7 @@ typedef struct AppState
 {
 	SDL_Texture* texture;
 	void* textureData;
+	double lastTime;
 } AppState;
 
 AppState appState = {0};
@@ -30,7 +31,7 @@ void urPutPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
 #define PointI URPointI
 #define PointF URPointF
 
-typedef struct 
+typedef struct
 {
 	Uint8 r, g, b, a;
 } RGBAColor;
@@ -56,7 +57,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 		return SDL_APP_FAILURE;
 	}
 	SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-	
+	SDL_SetRenderVSync(renderer, 1);
+
 	appState.textureData = malloc(320 * 240 * sizeof(Color));
 
 	memset(appState.textureData, 0, sizeof(Color) * 320 * 240);
@@ -64,6 +66,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	appState.texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, UR_SCREEN_WIDTH, UR_SCREEN_HEIGHT);
 
 	SDL_SetTextureScaleMode(appState.texture, SDL_SCALEMODE_NEAREST);
+
+	appState.lastTime = ((double)SDL_GetTicks()) / 1000.0;
 
 	*appstate = &appState;
 
@@ -91,17 +95,23 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+	AppState* appState = (AppState *)appstate;
 	const double now = ((double)SDL_GetTicks()) / 1000.0;  /* convert from milliseconds to seconds. */
-	SDL_SetRenderDrawColorFloat(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE_FLOAT); 
+	double deltaTime = now - appState->lastTime;
+	appState->lastTime = now;
+
+	SDL_SetRenderDrawColorFloat(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE_FLOAT);
 
 	/* clear the window to the draw color. */
 	SDL_RenderClear(renderer);
 
-	AppState* appState = (AppState *)appstate;
+	urClearScreen(UR_BLACK);
 
 	urDrawSquareFill((URPointI){100, 100}, (URPointI){100, 10}, UR_RED);
 
 	urPrintString((URPointI){.x = 100, .y = 100}, "sarasa", UR_YELLOW);
+
+	urPrintFPS(deltaTime);
 
 	SDL_UpdateTexture(appState->texture, NULL, appState->textureData, 320 * sizeof(URColor));
 
