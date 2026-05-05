@@ -102,6 +102,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 }
 
 void renderBackground(float);
+void renderBackgroundTexture(float);
 
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate)
@@ -111,7 +112,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 	double deltaTime = now - appState->lastTime;
 	appState->lastTime = now;
 
-	renderBackground(deltaTime);
+	renderBackgroundTexture(deltaTime);
 
 
 	URColor colors[] =
@@ -174,6 +175,28 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
 /* SDL will clean up the window/renderer for us. */
+}
+
+void renderBackgroundTexture(float deltaTime)
+{
+	float static zoom = 1.;
+	zoom += 1. * deltaTime;
+
+	static URPointF position = {0};
+
+	position.x = sinf(zoom) * 100 + 200;
+	position.y = cosf(zoom) * 100 + 200;
+
+	float zoomS = 1.5 + sinf(zoom * 0.9) * 0.5;
+	float zoomSG = 1.5 + sinf(zoom * 0.8) * 0.6;
+	float zoomSB = 1.5 + sinf(zoom) * 0.7;
+	for(int x = 0; x < 320; x++)
+	{
+		for(int y = 0; y < 240; y++)
+		{
+			urPutPixel(x, y, (int)(x / zoomS + position.x) | (int)(position.y / zoomS + position.y), (int)(x / zoomSG + position.x) | (int)(y / zoomSG + position.y), (int)(x / zoomSB + position.x) | (int)(y / zoomSB + position.y));
+		}
+	}
 }
 
 void renderBackground(float deltaTime)
