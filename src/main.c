@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-
+#include <sys/param.h>
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window *window = NULL;
@@ -108,11 +108,14 @@ void renderBackgroundTexture(float);
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
 	AppState* appState = (AppState *)appstate;
+
+	SDL_RenderClear(renderer);
+
 	const double now = ((double)SDL_GetTicks()) / 1000.0;  /* convert from milliseconds to seconds. */
 	double deltaTime = now - appState->lastTime;
 	appState->lastTime = now;
 
-	renderBackgroundTexture(deltaTime);
+	renderBackground(deltaTime);
 
 
 	URColor colors[] =
@@ -204,9 +207,9 @@ void renderBackground(float deltaTime)
 	int x0[3] = {100, 150, 90}, y0[3] = {100, 150, 90};
 	static float phase[3] = {0};
 
-	phase[0] += 1. * deltaTime;
-	phase[1] -= 2. * deltaTime;
-	phase[2] += 3. * deltaTime;
+	phase[0] += .5 * deltaTime;
+	phase[1] -= .7 * deltaTime;
+	phase[2] += .9 * deltaTime;
 
 	x0[0] = sin(phase[0]) * 100 + 100;
 	y0[0] = cos(phase[0]) * 100 + 100;
@@ -230,10 +233,15 @@ void renderBackground(float deltaTime)
 										xb[2] * xb[2] + yb[2] * yb[2]
 									};
 
-			char red = labs(sinf(distance2[0] * 0.001) * 255.);
-			char green = labs(sinf(distance2[1] * 0.001) * 255.);
-			char blue = labs(sinf(distance2[2] * 0.001) * 255.);
-			urPutPixel(x, y, red, green, blue);
+			int red = labs(sinf(distance2[0] * 0.0002) * 128.);
+			int green = labs(sinf(distance2[1] * 0.0002) * 128.);
+			int blue = labs(sinf(distance2[2] * 0.0001) * 128.);
+
+			red += green;
+			red += blue;
+			red = red;
+
+			urPutPixel(x, y, red, red, red);
 		}
 	}
 }
