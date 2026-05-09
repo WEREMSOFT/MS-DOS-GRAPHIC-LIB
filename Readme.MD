@@ -1,6 +1,6 @@
 # IMPORTANT:
 
-This project is archived. The project is hosted now in (CodeBerg)[https://codeberg.org/WEREMSOFT/MS-DOS-GRAPHIC-LIB]
+This project is archived. The project is hosted now in [CodeBerg](https://codeberg.org/WEREMSOFT/MS-DOS-GRAPHIC-LIB)
 
 # MS Dos Frame Buffer lib
 
