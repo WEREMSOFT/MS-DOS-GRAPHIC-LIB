@@ -36,6 +36,25 @@ void urPutPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
 #define PointI URPointI
 #define PointF URPointF
 
+int redPalette[256] = {0};
+int greenPalette[256] = {0};
+int bluePalette[256] = {0};
+
+void initPalette()
+{
+	float increment = M_PI / 255.;
+	float phase = 0.;
+
+
+	for(int i = 0; i < 256; i++)
+	{
+		redPalette[i] = floorf(sinf(phase) * 128.) + 128;
+		greenPalette[i] = floorf(sinf(phase) * 128.) + 128;
+		bluePalette[i] = floorf(sinf(phase) * 128.) + 128;
+		phase += increment;
+	}
+}
+
 typedef struct
 {
 	Uint8 r, g, b, a;
@@ -52,6 +71,7 @@ URSprite sprite;
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+	initPalette();
 	SDL_SetAppMetadata("Example Renderer Clear", "1.0", "com.example.renderer-clear");
 
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -116,7 +136,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 	appState->lastTime = now;
 
 	renderBackground(deltaTime);
-
 
 	URColor colors[] =
 	{
@@ -211,14 +230,16 @@ void renderBackground(float deltaTime)
 	phase[1] -= .7 * deltaTime;
 	phase[2] += .9 * deltaTime;
 
-	x0[0] = sin(phase[0]) * 100 + 100;
-	y0[0] = cos(phase[0]) * 100 + 100;
+	x0[0] = sin(phase[0]) * 200 + 100;
+	y0[0] = cos(phase[0]) * 200 + 100;
 
-	x0[1] = sin(phase[1]) * 90 + 150;
-	y0[1] = cos(phase[1]) * 100 + 150;
+	x0[1] = sin(phase[1]) * 600 + 150;
+	y0[1] = cos(phase[1]) * 400 + 150;
 
 	x0[2] = sin(phase[2]) * 100 + 120;
 	y0[2] = cos(phase[2]) * 110 + 120;
+
+	static int startp = 0;
 
 	for(int x = 0; x < 320; x++)
 	{
@@ -234,14 +255,20 @@ void renderBackground(float deltaTime)
 									};
 
 			int red = labs(sinf(distance2[0] * 0.0002) * 128.);
-			int green = labs(sinf(distance2[1] * 0.0002) * 128.);
+			int green = labs(sinf(distance2[1] * 0.00001) * 128.);
 			int blue = labs(sinf(distance2[2] * 0.0001) * 128.);
 
 			red += green;
 			red += blue;
 			red = red;
 
-			urPutPixel(x, y, red, red, red);
+			urPutPixel(x, y, 208, redPalette[red % 255], bluePalette[blue % 255]);
+
+			//urPutPixel(x, y, redPalette[red % 255], greenPalette[green % 255], bluePalette[blue % 255]);
+
+			startp++;
+
+			//urPutPixel(x, y, red, red, red);
 		}
 	}
 }
